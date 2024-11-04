@@ -1,0 +1,12 @@
+﻿<MudDialog DefaultFocus="DefaultFocus" ContentClass="py-2">
+	<DialogContent>
+		<MudText Align="Align.Center">@((MarkupString)Text)</MudText>
+		<MudProgressCircular Class="d-flex mx-auto mt-4" Color="Color.Default" Indeterminate="true" />
+	</DialogContent>
+	<DialogActions>
+		@if (ShowCancel)
+		{
+			<MudButton OnClick="Cancel" Variant="Variant.Filled">Cancel</MudButton>
+		}
+	</DialogActions>
+</MudDialog>

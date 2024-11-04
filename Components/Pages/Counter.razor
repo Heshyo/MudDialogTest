@@ -1,0 +1,53 @@
+﻿@page "/"
+
+<MudText Class="mb-8" Typo="Typo.h6">
+	Display a dialog box with a loading animation, then wait for x ms, then close it.
+	Use either DefaultFocus.Element or None.
+</MudText>
+
+<MudText>
+	Wait 1000ms with DefaultFocus.Element. No issue.
+</MudText>
+<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="Wait1000" Class="mb-8">Go</MudButton>
+
+<MudText>
+	Wait 2ms with DefaultFocus.None. No issue.
+</MudText>
+<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="Wait2None" Class="mb-8">Go</MudButton>
+
+<MudText>
+	Wait 2ms with DefaultFocus.Element. Crash: Microsoft.JSInterop.JSException: Unable to focus an invalid element.
+</MudText>
+<MudButton Color="Color.Error" Variant="Variant.Filled" @onclick="Wait2Elt" Class="mb-8">Go</MudButton>
+
+<MudText>
+	Wait 0ms with DefaultFocus.None. Crash: 
+	<MudLink Href="https://github.com/MudBlazor/MudBlazor/blob/08752fa2e48570ea7a220543b0d878938dedae59/src/MudBlazor/Components/Dialog/MudDialogProvider.razor.cs#L137">
+		Unhandled exception rendering component: Collection was modified; enumeration operation may not execute.
+	</MudLink>
+</MudText>
+<MudButton Color="Color.Error" Variant="Variant.Filled" @onclick="Wait0" Class="mb-8">Go</MudButton>
+
+@code {
+
+	[Inject] IDialogService DialogService { get; set; } = default!;
+
+	Task Wait1000() => ShowThenClose(DefaultFocus.Element, 1000);
+	Task Wait2Elt() => ShowThenClose(DefaultFocus.Element, 2);
+	Task Wait2None() => ShowThenClose(DefaultFocus.None, 2);
+	Task Wait0() => ShowThenClose(DefaultFocus.None, 0);
+
+	async Task ShowThenClose(DefaultFocus defaultFocus, int wait)
+	{
+		DialogParameters parameters = new()
+		{
+			{nameof(LoadingDialog.DefaultFocus), defaultFocus},
+			{ nameof(LoadingDialog.Text), "Loading..." },
+			{ nameof(LoadingDialog.ShowCancel), true },
+		};
+
+		var dialog = await DialogService.ShowAsync<LoadingDialog>(null, parameters);
+		await Task.Delay(wait);
+		dialog.Close();
+	}
+}
